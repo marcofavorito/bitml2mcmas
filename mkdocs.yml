@@ -1,0 +1,51 @@
+site_name: BitML2MCMAS
+repo_name: 'marcofavorito/bitml2mcmas'
+repo_url: https://github.com/marcofavorito/bitml2mcmas
+
+nav:
+- Home: index.md
+- Tutorial: mutual-timed-commitment-tutorial.ipynb
+- BitML Contracts Examples: tutorial.ipynb
+
+plugins:
+- search
+- mkdocs-jupyter:
+    execute: false
+
+watch:
+  - bitml2mcmas
+  - docs
+
+theme:
+  name: material
+  feature:
+    tabs: true
+
+
+strict: true
+
+
+markdown_extensions:
+- extra
+- codehilite
+- footnotes
+- pymdownx.arithmatex:
+    generic: true
+- pymdownx.highlight:
+      anchor_linenums: true
+      use_pygments: true
+      pygments_lang_class: true
+      auto_title: true
+      linenums: true
+      linenums_style: pymdownx-inline
+      line_spans: __span
+- pymdownx.inlinehilite
+- pymdownx.snippets
+- markdown_include.include:
+    base_path: docs
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+- 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML'

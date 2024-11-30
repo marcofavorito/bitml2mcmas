@@ -1,0 +1,189 @@
+Semantics=SingleAssignment;
+Agent Environment
+  Obsvars:
+    time: 0..1;
+    contract_funds: 0..2;
+    part_A_total_deposits: 0..2;
+    part_B_total_deposits: 0..2;
+    public_secret_a: {committed, not_committed, valid};
+    public_secret_b: {committed, not_committed, valid};
+    contract_initialized: boolean;
+    status_node_0_withdraw: {disabled, enabled, executed};
+    status_node_1_withdraw: {disabled, enabled, executed};
+    status_node_2_split: {disabled, enabled, executed};
+    status_node_3_reveal: {disabled, enabled, executed};
+    status_node_4_withdraw: {disabled, enabled, executed};
+    status_node_6_reveal: {disabled, enabled, executed};
+    status_node_7_withdraw: {disabled, enabled, executed};
+  end Obsvars
+  Vars:
+    part_A_is_done: boolean;
+    part_B_is_done: boolean;
+    last_action: {action_delay, action_schedule_part_A, action_schedule_part_B, unset};
+  end Vars
+
+  Actions = {delay, schedule_part_A, schedule_part_B};
+  Protocol:
+    (part_A_is_done = false): {schedule_part_A};
+    (part_B_is_done = false): {schedule_part_B};
+    Other: {delay};
+  end Protocol
+  Evolution:
+    part_A_is_done = false if ((Action = delay) and ((part_A_is_done = true) and (part_B_is_done = true)));
+    part_B_is_done = false if ((Action = delay) and ((part_A_is_done = true) and (part_B_is_done = true)));
+    part_A_is_done = true if (((Action = schedule_part_A) and (Agent_A.Action = nop)) and (part_A_is_done = false));
+    part_B_is_done = true if (((Action = schedule_part_B) and (Agent_B.Action = nop)) and (part_B_is_done = false));
+    time = (time + 1) if (((Action = delay) and ((part_A_is_done = true) and (part_B_is_done = true))) and (time < 1));
+    public_secret_a = committed if (((public_secret_a = not_committed) and ((Agent_A.Action = commit_valid_secret_a) or (Agent_A.Action = commit_invalid_secret_a))) and (Action = schedule_part_A));
+    public_secret_a = valid if (((Agent_A.Action = reveal_secret_a) and (Action = schedule_part_A)) and (public_secret_a = committed));
+    public_secret_b = committed if (((public_secret_b = not_committed) and ((Agent_B.Action = commit_valid_secret_b) or (Agent_B.Action = commit_invalid_secret_b))) and (Action = schedule_part_B));
+    public_secret_b = valid if (((Agent_B.Action = reveal_secret_b) and (Action = schedule_part_B)) and (public_secret_b = committed));
+    contract_initialized = true if (((contract_initialized = false) and (((public_secret_a = committed) or (public_secret_a = valid)) and ((public_secret_b = committed) or (public_secret_b = valid)))) and (((Action = schedule_part_A) and (Agent_A.Action = initialize_contract)) or ((Action = schedule_part_B) and (Agent_B.Action = initialize_contract))));
+    contract_funds = (contract_funds - 1) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_0_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_0_withdraw)));
+    part_A_total_deposits = (part_A_total_deposits + 1) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_0_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_0_withdraw)));
+    status_node_0_withdraw = executed if (((Agent_A.Action = exec_node_0_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_0_withdraw) and (Action = schedule_part_B)));
+    status_node_0_withdraw = enabled if (((status_node_2_split = executed) or (((Agent_A.Action = exec_node_2_split) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_2_split) and (Action = schedule_part_B)))) and (status_node_0_withdraw = disabled));
+    contract_funds = (contract_funds - 1) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_1_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_1_withdraw)));
+    part_B_total_deposits = (part_B_total_deposits + 1) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_1_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_1_withdraw)));
+    status_node_1_withdraw = executed if (((Agent_A.Action = exec_node_1_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_1_withdraw) and (Action = schedule_part_B)));
+    status_node_1_withdraw = enabled if (((status_node_2_split = executed) or (((Agent_A.Action = exec_node_2_split) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_2_split) and (Action = schedule_part_B)))) and (status_node_1_withdraw = disabled));
+    status_node_2_split = executed if (((Agent_A.Action = exec_node_2_split) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_2_split) and (Action = schedule_part_B)));
+    status_node_2_split = enabled if (((status_node_3_reveal = executed) or (((Agent_A.Action = exec_node_3_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_3_reveal) and (Action = schedule_part_B)))) and (status_node_2_split = disabled));
+    status_node_3_reveal = executed if (((Agent_A.Action = exec_node_3_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_3_reveal) and (Action = schedule_part_B)));
+    status_node_3_reveal = enabled if (((((status_node_6_reveal = executed) or (((Agent_A.Action = exec_node_6_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_6_reveal) and (Action = schedule_part_B)))) and (status_node_3_reveal = disabled)) and ((public_secret_b = valid) or ((Agent_B.Action = reveal_secret_b) and (Action = schedule_part_B)))) and (!((status_node_4_withdraw = executed) or (((Agent_A.Action = exec_node_4_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_4_withdraw) and (Action = schedule_part_B))))));
+    status_node_3_reveal = disabled if ((status_node_4_withdraw = executed) or (((Agent_A.Action = exec_node_4_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_4_withdraw) and (Action = schedule_part_B))));
+    contract_funds = (contract_funds - 2) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_4_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_4_withdraw)));
+    part_A_total_deposits = (part_A_total_deposits + 2) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_4_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_4_withdraw)));
+    status_node_4_withdraw = executed if (((Agent_A.Action = exec_node_4_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_4_withdraw) and (Action = schedule_part_B)));
+    status_node_4_withdraw = enabled if (((((status_node_6_reveal = executed) or (((Agent_A.Action = exec_node_6_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_6_reveal) and (Action = schedule_part_B)))) and (status_node_4_withdraw = disabled)) and ((time >= 1) or ((time = 0) and (Action = delay)))) and (!((status_node_3_reveal = executed) or (((Agent_A.Action = exec_node_3_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_3_reveal) and (Action = schedule_part_B))))));
+    status_node_4_withdraw = disabled if ((status_node_3_reveal = executed) or (((Agent_A.Action = exec_node_3_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_3_reveal) and (Action = schedule_part_B))));
+    status_node_6_reveal = executed if (((Agent_A.Action = exec_node_6_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_6_reveal) and (Action = schedule_part_B)));
+    status_node_6_reveal = enabled if (((((((Action = schedule_part_A) and (Agent_A.Action = initialize_contract)) or ((Action = schedule_part_B) and (Agent_B.Action = initialize_contract))) or (contract_initialized = true)) and (status_node_6_reveal = disabled)) and ((public_secret_a = valid) or ((Agent_A.Action = reveal_secret_a) and (Action = schedule_part_A)))) and (!((status_node_7_withdraw = executed) or (((Agent_A.Action = exec_node_7_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_7_withdraw) and (Action = schedule_part_B))))));
+    status_node_6_reveal = disabled if ((status_node_7_withdraw = executed) or (((Agent_A.Action = exec_node_7_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_7_withdraw) and (Action = schedule_part_B))));
+    contract_funds = (contract_funds - 2) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_7_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_7_withdraw)));
+    part_B_total_deposits = (part_B_total_deposits + 2) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_7_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_7_withdraw)));
+    status_node_7_withdraw = executed if (((Agent_A.Action = exec_node_7_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_7_withdraw) and (Action = schedule_part_B)));
+    status_node_7_withdraw = enabled if (((((((Action = schedule_part_A) and (Agent_A.Action = initialize_contract)) or ((Action = schedule_part_B) and (Agent_B.Action = initialize_contract))) or (contract_initialized = true)) and (status_node_7_withdraw = disabled)) and ((time >= 1) or ((time = 0) and (Action = delay)))) and (!((status_node_6_reveal = executed) or (((Agent_A.Action = exec_node_6_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_6_reveal) and (Action = schedule_part_B))))));
+    status_node_7_withdraw = disabled if ((status_node_6_reveal = executed) or (((Agent_A.Action = exec_node_6_reveal) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_6_reveal) and (Action = schedule_part_B))));
+    last_action = action_delay if (Action = delay);
+    last_action = action_schedule_part_A if (Action = schedule_part_A);
+    last_action = action_schedule_part_B if (Action = schedule_part_B);
+  end Evolution
+end Agent
+
+Agent Agent_A
+  Lobsvars = {part_A_is_done};
+  Vars:
+    private_secret_a: {invalid, not_committed, valid};
+  end Vars
+
+  Actions = {commit_invalid_secret_a, commit_valid_secret_a, exec_node_0_withdraw, exec_node_1_withdraw, exec_node_2_split, exec_node_3_reveal, exec_node_4_withdraw, exec_node_6_reveal, exec_node_7_withdraw, initialize_contract, nop, reveal_secret_a};
+  Protocol:
+    (((Environment.contract_initialized = false) and (private_secret_a = not_committed)) and (Environment.part_A_is_done = false)): {commit_invalid_secret_a, commit_valid_secret_a, nop};
+    (((private_secret_a = valid) and (Environment.public_secret_a = committed)) and (Environment.part_A_is_done = false)): {nop, reveal_secret_a};
+    (((Environment.contract_initialized = false) and (Environment.part_A_is_done = false)) and (((Environment.public_secret_a = committed) or (Environment.public_secret_a = valid)) and ((Environment.public_secret_b = committed) or (Environment.public_secret_b = valid)))): {initialize_contract, nop};
+    ((Environment.status_node_0_withdraw = enabled) and (Environment.part_A_is_done = false)): {exec_node_0_withdraw, nop};
+    ((Environment.status_node_1_withdraw = enabled) and (Environment.part_A_is_done = false)): {exec_node_1_withdraw, nop};
+    ((Environment.status_node_2_split = enabled) and (Environment.part_A_is_done = false)): {exec_node_2_split, nop};
+    ((Environment.status_node_3_reveal = enabled) and (Environment.part_A_is_done = false)): {exec_node_3_reveal, nop};
+    ((Environment.status_node_4_withdraw = enabled) and (Environment.part_A_is_done = false)): {exec_node_4_withdraw, nop};
+    ((Environment.status_node_6_reveal = enabled) and (Environment.part_A_is_done = false)): {exec_node_6_reveal, nop};
+    ((Environment.status_node_7_withdraw = enabled) and (Environment.part_A_is_done = false)): {exec_node_7_withdraw, nop};
+    Other: {nop};
+  end Protocol
+  Evolution:
+    private_secret_a = valid if ((((Action = commit_valid_secret_a) and (private_secret_a = not_committed)) and (Environment.contract_initialized = false)) and (Environment.Action = schedule_part_A));
+    private_secret_a = invalid if ((((Action = commit_invalid_secret_a) and (private_secret_a = not_committed)) and (Environment.contract_initialized = false)) and (Environment.Action = schedule_part_A));
+  end Evolution
+end Agent
+Agent Agent_B
+  Lobsvars = {part_B_is_done};
+  Vars:
+    private_secret_b: {invalid, not_committed, valid};
+  end Vars
+
+  Actions = {commit_invalid_secret_b, commit_valid_secret_b, exec_node_0_withdraw, exec_node_1_withdraw, exec_node_2_split, exec_node_3_reveal, exec_node_4_withdraw, exec_node_6_reveal, exec_node_7_withdraw, initialize_contract, nop, reveal_secret_b};
+  Protocol:
+    (((Environment.contract_initialized = false) and (private_secret_b = not_committed)) and (Environment.part_B_is_done = false)): {commit_invalid_secret_b, commit_valid_secret_b, nop};
+    (((private_secret_b = valid) and (Environment.public_secret_b = committed)) and (Environment.part_B_is_done = false)): {nop, reveal_secret_b};
+    (((Environment.contract_initialized = false) and (Environment.part_B_is_done = false)) and (((Environment.public_secret_a = committed) or (Environment.public_secret_a = valid)) and ((Environment.public_secret_b = committed) or (Environment.public_secret_b = valid)))): {initialize_contract, nop};
+    ((Environment.status_node_0_withdraw = enabled) and (Environment.part_B_is_done = false)): {exec_node_0_withdraw, nop};
+    ((Environment.status_node_1_withdraw = enabled) and (Environment.part_B_is_done = false)): {exec_node_1_withdraw, nop};
+    ((Environment.status_node_2_split = enabled) and (Environment.part_B_is_done = false)): {exec_node_2_split, nop};
+    ((Environment.status_node_3_reveal = enabled) and (Environment.part_B_is_done = false)): {exec_node_3_reveal, nop};
+    ((Environment.status_node_4_withdraw = enabled) and (Environment.part_B_is_done = false)): {exec_node_4_withdraw, nop};
+    ((Environment.status_node_6_reveal = enabled) and (Environment.part_B_is_done = false)): {exec_node_6_reveal, nop};
+    ((Environment.status_node_7_withdraw = enabled) and (Environment.part_B_is_done = false)): {exec_node_7_withdraw, nop};
+    Other: {nop};
+  end Protocol
+  Evolution:
+    private_secret_b = valid if ((((Action = commit_valid_secret_b) and (private_secret_b = not_committed)) and (Environment.contract_initialized = false)) and (Environment.Action = schedule_part_B));
+    private_secret_b = invalid if ((((Action = commit_invalid_secret_b) and (private_secret_b = not_committed)) and (Environment.contract_initialized = false)) and (Environment.Action = schedule_part_B));
+  end Evolution
+end Agent
+Evaluation
+  part_A_is_scheduled if (Environment.last_action = action_schedule_part_A);
+  part_B_is_scheduled if (Environment.last_action = action_schedule_part_B);
+  time_progresses_forever if ((Environment.time = 1) or (Environment.last_action = action_delay));
+  time_reaches_maximum if (Environment.time = 1);
+  timeout_1_has_expired if (Environment.time >= 1);
+  part_A_is_done if (Environment.part_A_is_done = true);
+  part_B_is_done if (Environment.part_B_is_done = true);
+  private_secret_a_is_valid if (Agent_A.private_secret_a = valid);
+  private_secret_a_is_invalid if (Agent_A.private_secret_a = invalid);
+  private_secret_a_is_not_committed if (Agent_A.private_secret_a = not_committed);
+  public_secret_a_is_committed if (Environment.public_secret_a = committed);
+  public_secret_a_is_not_committed if (Environment.public_secret_a = not_committed);
+  public_secret_a_is_valid if (Environment.public_secret_a = valid);
+  private_secret_b_is_valid if (Agent_B.private_secret_b = valid);
+  private_secret_b_is_invalid if (Agent_B.private_secret_b = invalid);
+  private_secret_b_is_not_committed if (Agent_B.private_secret_b = not_committed);
+  public_secret_b_is_committed if (Environment.public_secret_b = committed);
+  public_secret_b_is_not_committed if (Environment.public_secret_b = not_committed);
+  public_secret_b_is_valid if (Environment.public_secret_b = valid);
+  contract_is_initialized if (Environment.contract_initialized = true);
+  node_0_withdraw_is_disabled if (Environment.status_node_0_withdraw = disabled);
+  node_0_withdraw_is_enabled if (Environment.status_node_0_withdraw = enabled);
+  node_0_withdraw_is_executed if (Environment.status_node_0_withdraw = executed);
+  node_1_withdraw_is_disabled if (Environment.status_node_1_withdraw = disabled);
+  node_1_withdraw_is_enabled if (Environment.status_node_1_withdraw = enabled);
+  node_1_withdraw_is_executed if (Environment.status_node_1_withdraw = executed);
+  node_2_split_is_disabled if (Environment.status_node_2_split = disabled);
+  node_2_split_is_enabled if (Environment.status_node_2_split = enabled);
+  node_2_split_is_executed if (Environment.status_node_2_split = executed);
+  node_3_reveal_is_disabled if (Environment.status_node_3_reveal = disabled);
+  node_3_reveal_is_enabled if (Environment.status_node_3_reveal = enabled);
+  node_3_reveal_is_executed if (Environment.status_node_3_reveal = executed);
+  node_4_withdraw_is_disabled if (Environment.status_node_4_withdraw = disabled);
+  node_4_withdraw_is_enabled if (Environment.status_node_4_withdraw = enabled);
+  node_4_withdraw_is_executed if (Environment.status_node_4_withdraw = executed);
+  node_6_reveal_is_disabled if (Environment.status_node_6_reveal = disabled);
+  node_6_reveal_is_enabled if (Environment.status_node_6_reveal = enabled);
+  node_6_reveal_is_executed if (Environment.status_node_6_reveal = executed);
+  node_7_withdraw_is_disabled if (Environment.status_node_7_withdraw = disabled);
+  node_7_withdraw_is_enabled if (Environment.status_node_7_withdraw = enabled);
+  node_7_withdraw_is_executed if (Environment.status_node_7_withdraw = executed);
+  part_A_total_deposits_is_at_least_1 if (Environment.part_A_total_deposits >= 1);
+  part_B_total_deposits_is_2 if (Environment.part_B_total_deposits >= 2);
+  part_B_total_deposits_is_at_least_1 if (Environment.part_B_total_deposits >= 1);
+end Evaluation
+InitStates
+  (((((((((((((((((((Environment.time = 0) and (Environment.part_A_is_done = false)) and (Environment.part_B_is_done = false)) and (Environment.contract_funds = 2)) and (Environment.part_A_total_deposits = 0)) and (Environment.part_B_total_deposits = 0)) and (Environment.public_secret_a = not_committed)) and (Environment.public_secret_b = not_committed)) and (Agent_A.private_secret_a = not_committed)) and (Agent_B.private_secret_b = not_committed)) and (Environment.contract_initialized = false)) and (Environment.status_node_0_withdraw = disabled)) and (Environment.status_node_1_withdraw = disabled)) and (Environment.status_node_2_split = disabled)) and (Environment.status_node_3_reveal = disabled)) and (Environment.status_node_4_withdraw = disabled)) and (Environment.status_node_6_reveal = disabled)) and (Environment.status_node_7_withdraw = disabled)) and (Environment.last_action = unset));
+end InitStates
+Groups
+  Participants = {Agent_A, Agent_B};
+  Env = {Environment};
+  ParticipantsAndEnv = {Agent_A, Agent_B, Environment};
+  Agent_B = {Agent_B};
+  Agent_A = {Agent_A};
+end Groups
+Fairness
+  part_A_is_scheduled;
+  part_B_is_scheduled;
+  time_progresses_forever;
+end Fairness
+Formulae
+  (AG ((private_secret_a_is_invalid) -> ((!(<Agent_A>F(part_A_total_deposits_is_at_least_1))))));
+  (AG ((((!public_secret_b_is_valid) and (private_secret_a_is_invalid and timeout_1_has_expired))) -> ((<Agent_B>F(((!public_secret_b_is_valid) and part_B_total_deposits_is_2))))));
+  (AG (((contract_is_initialized and (private_secret_b_is_valid and (!timeout_1_has_expired)))) -> ((<Agent_B>F(part_B_total_deposits_is_at_least_1)))));
+end Formulae

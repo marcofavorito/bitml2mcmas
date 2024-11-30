@@ -1,0 +1,8 @@
+.idea
+site/
+build/
+tests/bin/*
+!tests/bin/.gitkeep
+tests/test_compiler/verification_outputs/*
+!tests/test_compiler/verification_outputs/.gitkeep
+docs/model.ispl

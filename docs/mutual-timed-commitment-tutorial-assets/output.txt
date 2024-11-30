@@ -1,0 +1,32 @@
+************************************************************************
+                       MCMAS v1.3.0 
+
+ This software comes with ABSOLUTELY NO WARRANTY, to the extent
+ permitted by applicable law. 
+
+ Please check http://vas.doc.ic.ac.uk/tools/mcmas/ for the latest release.
+ Please send any feedback to <mcmas@imperial.ac.uk>
+************************************************************************
+
+Command line: ./mcmas -atlk 1 docs/model.ispl
+
+docs/model.ispl has been parsed successfully.
+Global syntax checking...
+1
+1
+1
+Done
+Encoding BDD parameters...
+Building partial transition relation...
+Building BDD for initial states...
+Building reachable state space...
+Checking formulae...
+Building set of fair states...
+Verifying properties...
+  Formula number 1: (AG (private_secret_a_is_invalid -> (! (<Agent_A>F part_A_total_deposits_is_at_least_1)))), is TRUE in the model
+  Formula number 2: (AG (((! public_secret_b_is_valid) && (private_secret_a_is_invalid && timeout_1_has_expired)) -> (<Agent_B>F ((! public_secret_b_is_valid) && part_B_total_deposits_is_2)))), is TRUE in the model
+  Formula number 3: (AG ((contract_is_initialized && (private_secret_b_is_valid && (! timeout_1_has_expired))) -> (<Agent_B>F part_B_total_deposits_is_at_least_1))), is TRUE in the model
+done, 3 formulae successfully read and checked
+execution time = 1.808
+number of reachable states = 1659
+BDD memory in use = 14733968

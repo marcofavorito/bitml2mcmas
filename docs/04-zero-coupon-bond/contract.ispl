@@ -1,0 +1,205 @@
+Semantics=SingleAssignment;
+Agent Environment
+  Obsvars:
+    time: 0..2;
+    contract_funds: 0..29;
+    part_G_total_deposits: 0..29;
+    part_A_total_deposits: 0..29;
+    part_B_total_deposits: 0..29;
+    spent_deposit_txb1: boolean;
+    contract_initialized: boolean;
+    status_node_0_withdraw: {disabled, enabled, executed};
+    status_node_1_withdraw: {disabled, enabled, executed};
+    status_node_2_withdraw: {disabled, enabled, executed};
+    status_node_3_split: {disabled, enabled, executed};
+    status_node_4_put: {disabled, enabled, executed};
+    status_node_5_withdraw: {disabled, enabled, executed};
+    status_node_7_split: {disabled, enabled, executed};
+  end Obsvars
+  Vars:
+    part_G_is_done: boolean;
+    part_A_is_done: boolean;
+    part_B_is_done: boolean;
+    last_action: {action_delay, action_schedule_part_A, action_schedule_part_B, action_schedule_part_G, unset};
+  end Vars
+
+  Actions = {delay, schedule_part_A, schedule_part_B, schedule_part_G};
+  Protocol:
+    (part_G_is_done = false): {schedule_part_G};
+    (part_A_is_done = false): {schedule_part_A};
+    (part_B_is_done = false): {schedule_part_B};
+    Other: {delay};
+  end Protocol
+  Evolution:
+    part_G_is_done = false if ((Action = delay) and (((part_G_is_done = true) and (part_A_is_done = true)) and (part_B_is_done = true)));
+    part_A_is_done = false if ((Action = delay) and (((part_G_is_done = true) and (part_A_is_done = true)) and (part_B_is_done = true)));
+    part_B_is_done = false if ((Action = delay) and (((part_G_is_done = true) and (part_A_is_done = true)) and (part_B_is_done = true)));
+    part_G_is_done = true if (((Action = schedule_part_G) and (Agent_G.Action = nop)) and (part_G_is_done = false));
+    part_A_is_done = true if (((Action = schedule_part_A) and (Agent_A.Action = nop)) and (part_A_is_done = false));
+    part_B_is_done = true if (((Action = schedule_part_B) and (Agent_B.Action = nop)) and (part_B_is_done = false));
+    time = (time + 1) if (((Action = delay) and (((part_G_is_done = true) and (part_A_is_done = true)) and (part_B_is_done = true))) and (time < 2));
+    contract_initialized = true if ((contract_initialized = false) and ((((Action = schedule_part_G) and (Agent_G.Action = initialize_contract)) or ((Action = schedule_part_A) and (Agent_A.Action = initialize_contract))) or ((Action = schedule_part_B) and (Agent_B.Action = initialize_contract))));
+    contract_funds = (contract_funds - 9) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_0_withdraw)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_0_withdraw))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_0_withdraw)));
+    part_B_total_deposits = (part_B_total_deposits + 9) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_0_withdraw)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_0_withdraw))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_0_withdraw)));
+    status_node_0_withdraw = executed if ((((Agent_G.Action = exec_node_0_withdraw) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_0_withdraw) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_0_withdraw) and (Action = schedule_part_B)));
+    status_node_0_withdraw = enabled if (((status_node_7_split = executed) or ((((Agent_G.Action = exec_node_7_split) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_7_split) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_7_split) and (Action = schedule_part_B)))) and (status_node_0_withdraw = disabled));
+    contract_funds = (contract_funds - 10) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_1_withdraw)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_1_withdraw))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_1_withdraw)));
+    part_A_total_deposits = (part_A_total_deposits + 10) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_1_withdraw)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_1_withdraw))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_1_withdraw)));
+    status_node_1_withdraw = executed if ((((Agent_G.Action = exec_node_1_withdraw) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_1_withdraw) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_1_withdraw) and (Action = schedule_part_B)));
+    status_node_1_withdraw = enabled if (((status_node_3_split = executed) or ((((Agent_G.Action = exec_node_3_split) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_3_split) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_3_split) and (Action = schedule_part_B)))) and (status_node_1_withdraw = disabled));
+    contract_funds = (contract_funds - 10) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_2_withdraw)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_2_withdraw))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_2_withdraw)));
+    part_G_total_deposits = (part_G_total_deposits + 10) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_2_withdraw)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_2_withdraw))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_2_withdraw)));
+    status_node_2_withdraw = executed if ((((Agent_G.Action = exec_node_2_withdraw) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_2_withdraw) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_2_withdraw) and (Action = schedule_part_B)));
+    status_node_2_withdraw = enabled if (((status_node_3_split = executed) or ((((Agent_G.Action = exec_node_3_split) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_3_split) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_3_split) and (Action = schedule_part_B)))) and (status_node_2_withdraw = disabled));
+    status_node_3_split = executed if ((((Agent_G.Action = exec_node_3_split) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_3_split) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_3_split) and (Action = schedule_part_B)));
+    status_node_3_split = enabled if (((status_node_4_put = executed) or ((((Agent_G.Action = exec_node_4_put) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_4_put) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_4_put) and (Action = schedule_part_B)))) and (status_node_3_split = disabled));
+    status_node_4_put = executed if ((((Agent_G.Action = exec_node_4_put) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_4_put) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_4_put) and (Action = schedule_part_B)));
+    contract_funds = (contract_funds + 10) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_4_put)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_4_put))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_4_put)));
+    spent_deposit_txb1 = true if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_4_put)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_4_put))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_4_put)));
+    part_B_total_deposits = (part_B_total_deposits - 10) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_4_put)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_4_put))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_4_put)));
+    status_node_4_put = enabled if ((((((status_node_7_split = executed) or ((((Agent_G.Action = exec_node_7_split) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_7_split) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_7_split) and (Action = schedule_part_B)))) and (status_node_4_put = disabled)) and (spent_deposit_txb1 = false)) and ((time >= 1) or ((time = 0) and (Action = delay)))) and (!((status_node_5_withdraw = executed) or ((((Agent_G.Action = exec_node_5_withdraw) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_5_withdraw) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_5_withdraw) and (Action = schedule_part_B))))));
+    status_node_4_put = disabled if ((status_node_5_withdraw = executed) or ((((Agent_G.Action = exec_node_5_withdraw) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_5_withdraw) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_5_withdraw) and (Action = schedule_part_B))));
+    contract_funds = (contract_funds - 10) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_5_withdraw)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_5_withdraw))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_5_withdraw)));
+    part_A_total_deposits = (part_A_total_deposits + 10) if ((((Action = schedule_part_G) and (Agent_G.Action = exec_node_5_withdraw)) or ((Action = schedule_part_A) and (Agent_A.Action = exec_node_5_withdraw))) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_5_withdraw)));
+    status_node_5_withdraw = executed if ((((Agent_G.Action = exec_node_5_withdraw) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_5_withdraw) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_5_withdraw) and (Action = schedule_part_B)));
+    status_node_5_withdraw = enabled if (((((status_node_7_split = executed) or ((((Agent_G.Action = exec_node_7_split) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_7_split) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_7_split) and (Action = schedule_part_B)))) and (status_node_5_withdraw = disabled)) and ((time >= 2) or ((time = 1) and (Action = delay)))) and (!((status_node_4_put = executed) or ((((Agent_G.Action = exec_node_4_put) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_4_put) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_4_put) and (Action = schedule_part_B))))));
+    status_node_5_withdraw = disabled if ((status_node_4_put = executed) or ((((Agent_G.Action = exec_node_4_put) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_4_put) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_4_put) and (Action = schedule_part_B))));
+    status_node_7_split = executed if ((((Agent_G.Action = exec_node_7_split) and (Action = schedule_part_G)) or ((Agent_A.Action = exec_node_7_split) and (Action = schedule_part_A))) or ((Agent_B.Action = exec_node_7_split) and (Action = schedule_part_B)));
+    status_node_7_split = enabled if ((((((Action = schedule_part_G) and (Agent_G.Action = initialize_contract)) or ((Action = schedule_part_A) and (Agent_A.Action = initialize_contract))) or ((Action = schedule_part_B) and (Agent_B.Action = initialize_contract))) or (contract_initialized = true)) and (status_node_7_split = disabled));
+    last_action = action_schedule_part_B if (Action = schedule_part_B);
+    last_action = action_schedule_part_A if (Action = schedule_part_A);
+    last_action = action_schedule_part_G if (Action = schedule_part_G);
+    last_action = action_delay if (Action = delay);
+  end Evolution
+end Agent
+
+Agent Agent_G
+  Lobsvars = {part_G_is_done};
+  Vars:
+    dummy: boolean;
+  end Vars
+
+  Actions = {exec_node_0_withdraw, exec_node_1_withdraw, exec_node_2_withdraw, exec_node_3_split, exec_node_4_put, exec_node_5_withdraw, exec_node_7_split, initialize_contract, nop};
+  Protocol:
+    ((Environment.contract_initialized = false) and (Environment.part_G_is_done = false)): {initialize_contract, nop};
+    ((Environment.status_node_0_withdraw = enabled) and (Environment.part_G_is_done = false)): {exec_node_0_withdraw, nop};
+    ((Environment.status_node_1_withdraw = enabled) and (Environment.part_G_is_done = false)): {exec_node_1_withdraw, nop};
+    ((Environment.status_node_2_withdraw = enabled) and (Environment.part_G_is_done = false)): {exec_node_2_withdraw, nop};
+    ((Environment.status_node_3_split = enabled) and (Environment.part_G_is_done = false)): {exec_node_3_split, nop};
+    ((Environment.status_node_4_put = enabled) and (Environment.part_G_is_done = false)): {exec_node_4_put, nop};
+    ((Environment.status_node_5_withdraw = enabled) and (Environment.part_G_is_done = false)): {exec_node_5_withdraw, nop};
+    ((Environment.status_node_7_split = enabled) and (Environment.part_G_is_done = false)): {exec_node_7_split, nop};
+    Other: {nop};
+  end Protocol
+  Evolution:
+    dummy = false if (dummy = false);
+  end Evolution
+end Agent
+Agent Agent_A
+  Lobsvars = {part_A_is_done};
+  Vars:
+    dummy: boolean;
+  end Vars
+
+  Actions = {exec_node_0_withdraw, exec_node_1_withdraw, exec_node_2_withdraw, exec_node_3_split, exec_node_4_put, exec_node_5_withdraw, exec_node_7_split, initialize_contract, nop};
+  Protocol:
+    ((Environment.contract_initialized = false) and (Environment.part_A_is_done = false)): {initialize_contract, nop};
+    ((Environment.status_node_0_withdraw = enabled) and (Environment.part_A_is_done = false)): {exec_node_0_withdraw, nop};
+    ((Environment.status_node_1_withdraw = enabled) and (Environment.part_A_is_done = false)): {exec_node_1_withdraw, nop};
+    ((Environment.status_node_2_withdraw = enabled) and (Environment.part_A_is_done = false)): {exec_node_2_withdraw, nop};
+    ((Environment.status_node_3_split = enabled) and (Environment.part_A_is_done = false)): {exec_node_3_split, nop};
+    ((Environment.status_node_4_put = enabled) and (Environment.part_A_is_done = false)): {exec_node_4_put, nop};
+    ((Environment.status_node_5_withdraw = enabled) and (Environment.part_A_is_done = false)): {exec_node_5_withdraw, nop};
+    ((Environment.status_node_7_split = enabled) and (Environment.part_A_is_done = false)): {exec_node_7_split, nop};
+    Other: {nop};
+  end Protocol
+  Evolution:
+    dummy = false if (dummy = false);
+  end Evolution
+end Agent
+Agent Agent_B
+  Lobsvars = {part_B_is_done};
+  Vars:
+    dummy: boolean;
+  end Vars
+
+  Actions = {exec_node_0_withdraw, exec_node_1_withdraw, exec_node_2_withdraw, exec_node_3_split, exec_node_4_put, exec_node_5_withdraw, exec_node_7_split, initialize_contract, nop};
+  Protocol:
+    ((Environment.contract_initialized = false) and (Environment.part_B_is_done = false)): {initialize_contract, nop};
+    ((Environment.status_node_0_withdraw = enabled) and (Environment.part_B_is_done = false)): {exec_node_0_withdraw, nop};
+    ((Environment.status_node_1_withdraw = enabled) and (Environment.part_B_is_done = false)): {exec_node_1_withdraw, nop};
+    ((Environment.status_node_2_withdraw = enabled) and (Environment.part_B_is_done = false)): {exec_node_2_withdraw, nop};
+    ((Environment.status_node_3_split = enabled) and (Environment.part_B_is_done = false)): {exec_node_3_split, nop};
+    ((Environment.status_node_4_put = enabled) and (Environment.part_B_is_done = false)): {exec_node_4_put, nop};
+    ((Environment.status_node_5_withdraw = enabled) and (Environment.part_B_is_done = false)): {exec_node_5_withdraw, nop};
+    ((Environment.status_node_7_split = enabled) and (Environment.part_B_is_done = false)): {exec_node_7_split, nop};
+    Other: {nop};
+  end Protocol
+  Evolution:
+    dummy = false if (dummy = false);
+  end Evolution
+end Agent
+Evaluation
+  part_G_is_scheduled if (Environment.last_action = action_schedule_part_G);
+  part_A_is_scheduled if (Environment.last_action = action_schedule_part_A);
+  part_B_is_scheduled if (Environment.last_action = action_schedule_part_B);
+  time_progresses_forever if ((Environment.time = 2) or (Environment.last_action = action_delay));
+  time_reaches_maximum if (Environment.time = 2);
+  timeout_1_has_expired if (Environment.time >= 1);
+  timeout_2_has_expired if (Environment.time >= 2);
+  part_G_is_done if (Environment.part_G_is_done = true);
+  part_A_is_done if (Environment.part_A_is_done = true);
+  part_B_is_done if (Environment.part_B_is_done = true);
+  contract_is_initialized if (Environment.contract_initialized = true);
+  node_0_withdraw_is_disabled if (Environment.status_node_0_withdraw = disabled);
+  node_0_withdraw_is_enabled if (Environment.status_node_0_withdraw = enabled);
+  node_0_withdraw_is_executed if (Environment.status_node_0_withdraw = executed);
+  node_1_withdraw_is_disabled if (Environment.status_node_1_withdraw = disabled);
+  node_1_withdraw_is_enabled if (Environment.status_node_1_withdraw = enabled);
+  node_1_withdraw_is_executed if (Environment.status_node_1_withdraw = executed);
+  node_2_withdraw_is_disabled if (Environment.status_node_2_withdraw = disabled);
+  node_2_withdraw_is_enabled if (Environment.status_node_2_withdraw = enabled);
+  node_2_withdraw_is_executed if (Environment.status_node_2_withdraw = executed);
+  node_3_split_is_disabled if (Environment.status_node_3_split = disabled);
+  node_3_split_is_enabled if (Environment.status_node_3_split = enabled);
+  node_3_split_is_executed if (Environment.status_node_3_split = executed);
+  node_4_put_is_disabled if (Environment.status_node_4_put = disabled);
+  node_4_put_is_enabled if (Environment.status_node_4_put = enabled);
+  node_4_put_is_executed if (Environment.status_node_4_put = executed);
+  node_5_withdraw_is_disabled if (Environment.status_node_5_withdraw = disabled);
+  node_5_withdraw_is_enabled if (Environment.status_node_5_withdraw = enabled);
+  node_5_withdraw_is_executed if (Environment.status_node_5_withdraw = executed);
+  node_7_split_is_disabled if (Environment.status_node_7_split = disabled);
+  node_7_split_is_enabled if (Environment.status_node_7_split = enabled);
+  node_7_split_is_executed if (Environment.status_node_7_split = executed);
+  contract_funds_are_zero if (Environment.contract_funds = 0);
+  part_A_total_deposits_is_10 if (Environment.part_A_total_deposits >= 10);
+  part_B_total_deposits_is_at_least_9 if (Environment.part_B_total_deposits >= 9);
+end Evaluation
+InitStates
+  (((((((((((((((((((((Environment.time = 0) and (Environment.part_G_is_done = false)) and (Environment.part_A_is_done = false)) and (Environment.part_B_is_done = false)) and (Environment.contract_funds = 19)) and (Environment.part_G_total_deposits = 0)) and (Environment.part_A_total_deposits = 0)) and (Environment.part_B_total_deposits = 10)) and (Environment.spent_deposit_txb1 = false)) and (Environment.contract_initialized = false)) and (Environment.status_node_0_withdraw = disabled)) and (Environment.status_node_1_withdraw = disabled)) and (Environment.status_node_2_withdraw = disabled)) and (Environment.status_node_3_split = disabled)) and (Environment.status_node_4_put = disabled)) and (Environment.status_node_5_withdraw = disabled)) and (Environment.status_node_7_split = disabled)) and (Environment.last_action = unset)) and (Agent_G.dummy = false)) and (Agent_A.dummy = false)) and (Agent_B.dummy = false));
+end InitStates
+Groups
+  Participants = {Agent_A, Agent_B, Agent_G};
+  Env = {Environment};
+  ParticipantsAndEnv = {Agent_A, Agent_B, Agent_G, Environment};
+  Agent_G = {Agent_G};
+  Agent_A = {Agent_A};
+  Agent_B = {Agent_B};
+  Agent_A__Agent_G = {Agent_A, Agent_G};
+  Agent_B__Agent_G = {Agent_B, Agent_G};
+  Agent_A__Agent_B = {Agent_A, Agent_B};
+end Groups
+Fairness
+  part_G_is_scheduled;
+  part_A_is_scheduled;
+  part_B_is_scheduled;
+  time_progresses_forever;
+end Fairness
+Formulae
+  (<Agent_A>F(contract_funds_are_zero));
+  (<Agent_B>F(contract_funds_are_zero));
+  (<Agent_G>F(contract_funds_are_zero));
+  (<Agent_A__Agent_G>F(part_A_total_deposits_is_10));
+  (<Agent_B>F(part_B_total_deposits_is_at_least_9));
+end Formulae

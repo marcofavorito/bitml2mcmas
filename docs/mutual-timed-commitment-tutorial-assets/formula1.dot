@@ -1,0 +1,17 @@
+digraph witness0 {
+ 0 [label="0",shape=ellipse]
+ 1 [label="1",shape=ellipse]
+ 2 [label="2",shape=ellipse]
+ 3 [label="3",shape=ellipse]
+ 4 [label="4",shape=ellipse]
+ 5 [label="5",shape=ellipse]
+ 6 [label="6",shape=ellipse]
+ 7 [label="7",shape=ellipse]
+    0 -> 1[label="<schedule_part_B;nop;nop>"]
+    1 -> 2[label="<schedule_part_A;nop;nop>"]
+    2 -> 3[label="<delay;nop;nop>"]
+    3 -> 4[label="<schedule_part_A;nop;commit_invalid_secret_a>"]
+    4 -> 5[label="<schedule_part_B;commit_invalid_secret_b;nop>"]
+    5 -> 6[label="<schedule_part_A;nop;initialize_contract>"]
+    6 -> 7[label="<schedule_part_B;exec_node_7_withdraw;nop>"]
+}

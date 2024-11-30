@@ -1,0 +1,193 @@
+start: contract_spec
+
+contract_spec: LANG_BITML definitions_or_contract
+
+definitions_or_contract: definition_clause definitions_or_contract
+                       | contract
+
+?definition_clause: participant_clause
+                  | define_clause
+                  | debug_mode_clause
+
+participant_clause: LPAR PARTICIPANT participant_id participant_pubkey RPAR
+
+# 'define' clauses currently ignored
+define_clause: LPAR DEFINE /.+/ RPAR
+
+debug_mode_clause: LPAR DEBUG_MODE RPAR
+
+
+contract: LPAR CONTRACT contract_preconditions contract_body compilation_directives RPAR
+
+################
+# preconditions
+################
+contract_preconditions: LPAR PRE precondition_clause* RPAR
+?precondition_clause: deposit_clause
+                    | secret_clause
+                    | fee_clause
+                    | volatile_deposit_clause
+
+deposit_clause: LPAR DEPOSIT participant_id tx_amount tx_id RPAR
+secret_clause: LPAR SECRET participant_id secret_id secret_hash RPAR
+fee_clause: LPAR FEE participant_id tx_amount tx_id RPAR
+volatile_deposit_clause: LPAR VOL_DEPOSIT participant_id deposit_id tx_amount tx_id RPAR
+
+################
+# contract body
+################
+contract_body: contract_expr
+?contract_expr: choice_expr
+              | contract_branch_expr
+
+?contract_branch_expr: withdraw_expr
+                     | after_expr
+                     | authorization_expr
+                     | split_expr
+                     | put_expr
+                     | put_reveal_expr
+                     | put_reveal_if_expr
+                     | reveal_if_expr
+                     | reveal_expr
+
+withdraw_expr: LPAR WITHDRAW participant_id RPAR
+after_expr: LPAR AFTER INT contract_branch_expr RPAR
+choice_expr: LPAR CHOICE contract_branch_expr+ RPAR
+authorization_expr: LPAR AUTH participant_id+ contract_branch_expr RPAR
+split_expr: LPAR SPLIT split_branch+ RPAR
+put_expr: LPAR PUT vol_deposits contract_expr RPAR
+put_reveal_expr: LPAR PUT_REVEAL vol_deposits secret_ids contract_expr RPAR
+# compatibility with BitML original DSL syntax: predicate_def is optional in 'putrevealif' expressions
+put_reveal_if_expr: LPAR PUT_REVEAL_IF vol_deposits_or_empty secret_ids predicate_def? contract_expr RPAR
+reveal_if_expr: LPAR REVEAL_IF secret_ids predicate_def contract_expr RPAR
+reveal_expr: LPAR REVEAL secret_ids contract_expr RPAR
+
+compilation_directives: compilation_directive*
+compilation_directive: check_directive
+                     | check_liquid_directive
+                     | check_query_directive
+
+check_directive: LPAR CHECK /.+/ RPAR
+check_liquid_directive: LPAR CHECK_LIQUID RPAR
+check_query_directive: LPAR CHECK_QUERY /\".+\"/ RPAR
+
+################
+# predicates
+################
+predicate_def: LPAR PRED predicate RPAR
+?predicate: and_predicate
+          | or_predicate
+          | not_predicate
+          | between_predicate
+          | greater_than_or_equal_predicate
+          | greater_than_predicate
+          | less_than_or_equal_predicate
+          | less_than_predicate
+          | not_equal_to_predicate
+          | equal_to_predicate
+
+?operand: minus_predicate
+        | plus_predicate
+        | atom
+
+minus_predicate: LPAR MINUS_OP operand operand RPAR
+plus_predicate: LPAR PLUS_OP operand operand RPAR
+
+?atom: atom_secret_id
+     | atom_int
+
+atom_secret_id: secret_id
+atom_int: INT
+
+and_predicate: LPAR AND predicate predicate RPAR
+or_predicate: LPAR OR predicate predicate RPAR
+not_predicate: LPAR NOT predicate RPAR
+between_predicate: LPAR BETWEEN_OP operand operand operand RPAR
+greater_than_or_equal_predicate: LPAR GE_OP operand operand RPAR
+greater_than_predicate: LPAR GT_OP operand operand RPAR
+less_than_or_equal_predicate: LPAR LE_OP operand operand RPAR
+less_than_predicate: LPAR LT_OP operand operand RPAR
+not_equal_to_predicate: LPAR NE_OP operand operand RPAR
+equal_to_predicate: LPAR EQ_OP operand operand RPAR
+
+################
+# auxiliary
+################
+split_branch: LPAR DECIMAL RIGHT_ARROW contract_expr RPAR
+vol_deposits: LPAR deposit_id+ RPAR
+vol_deposits_or_empty: LPAR deposit_id* RPAR
+secret_ids: LPAR secret_id+ RPAR
+
+deposit_id: TERM
+participant_id: QUOTED_NAME
+participant_pubkey: QUOTED_HEX
+tx_id: DOUBLE_QUOTE NAME "@" DECIMAL DOUBLE_QUOTE
+tx_amount: DECIMAL
+secret_id: TERM
+secret_hash: QUOTED_HEX
+
+################
+# tokens
+################
+
+# keywords
+AFTER: "after"
+AUTH: "auth"
+CHECK: "check"
+CHECK_LIQUID: "check-liquid"
+CHECK_QUERY: "check-query"
+CHOICE: "choice"
+CONTRACT: "contract"
+DEBUG_MODE: "debug-mode"
+DEFINE: "define"
+DEPOSIT: "deposit"
+FEE: "fee"
+PARTICIPANT: "participant"
+PRE: "pre"
+PRED: "pred"
+PUT: "put"
+PUT_REVEAL: "putreveal"
+PUT_REVEAL_IF: "putrevealif"
+REVEAL: "reveal"
+REVEAL_IF: "revealif"
+SECRET: "secret"
+SPLIT: "split"
+VOL_DEPOSIT: "vol-deposit"
+WITHDRAW: "withdraw"
+
+# predicates
+AND: "and"
+BETWEEN_OP: "between"
+EQ_OP: "="
+GE_OP: ">="
+GT_OP: ">"
+LE_OP: "<="
+LT_OP: "<"
+MINUS_OP: "-"
+NE_OP: "!="
+NOT: "not"
+OR: "or"
+PLUS_OP: "+"
+
+# miscellaneous
+DECIMAL: /[0-9]+(\.[0-9]+)?/
+NAME: /[A-Za-z_][A-Za-z0-9_]*/
+TERM: /[A-Za-z_][A-Za-z0-9_]*/
+HEX: /[a-f0-9]+/
+DOUBLE_QUOTE: "\""
+QUOTED_NAME: DOUBLE_QUOTE NAME DOUBLE_QUOTE
+QUOTED_HEX: DOUBLE_QUOTE HEX DOUBLE_QUOTE
+LANG_BITML: /\#lang bitml\n/
+
+# symbols
+RIGHT_ARROW: "->"
+COMMENT: ";" /[^\n]/*
+LPAR : "("
+RPAR : ")"
+
+%import common.CNAME
+%import common.INT
+%import common.NEWLINE
+%ignore NEWLINE
+%ignore COMMENT
+%ignore /\s+/
