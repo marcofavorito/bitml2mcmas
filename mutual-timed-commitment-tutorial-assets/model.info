@@ -1,0 +1,91 @@
+-- State 0 --
+  Agent Environment
+    contract_funds=1
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    status_node_0_withdraw=disabled
+    last_action=unset
+  Agent Agent_A
+    dummy=false
+  Agent Agent_B
+    dummy=false
+
+-- State 1 --
+  Agent Environment
+    contract_funds=1
+    contract_initialized=true
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    status_node_0_withdraw=enabled
+    last_action=action_schedule_part_B
+  Agent Agent_A
+    dummy=false
+  Agent Agent_B
+    dummy=false
+
+-- State 2 --
+  Agent Environment
+    contract_funds=1
+    contract_initialized=true
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    status_node_0_withdraw=enabled
+    last_action=action_schedule_part_A
+  Agent Agent_A
+    dummy=false
+  Agent Agent_B
+    dummy=false
+
+-- State 3 --
+  Agent Environment
+    contract_funds=1
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    status_node_0_withdraw=disabled
+    last_action=action_schedule_part_A
+  Agent Agent_A
+    dummy=false
+  Agent Agent_B
+    dummy=false
+
+-- State 4 --
+  Agent Environment
+    contract_funds=1
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    status_node_0_withdraw=disabled
+    last_action=action_schedule_part_B
+  Agent Agent_A
+    dummy=false
+  Agent Agent_B
+    dummy=false
+
+-- State 5 --
+  Agent Environment
+    contract_funds=0
+    contract_initialized=true
+    part_A_total_deposits=0
+    part_B_total_deposits=1
+    status_node_0_withdraw=executed
+    last_action=action_schedule_part_B
+  Agent Agent_A
+    dummy=false
+  Agent Agent_B
+    dummy=false
+
+-- State 6 --
+  Agent Environment
+    contract_funds=0
+    contract_initialized=true
+    part_A_total_deposits=0
+    part_B_total_deposits=1
+    status_node_0_withdraw=executed
+    last_action=action_schedule_part_A
+  Agent Agent_A
+    dummy=false
+  Agent Agent_B
+    dummy=false
+

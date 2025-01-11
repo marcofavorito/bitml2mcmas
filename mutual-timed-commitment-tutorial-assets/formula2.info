@@ -1,0 +1,240 @@
+-- State 0 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=not_committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=0
+    last_action=unset
+    part_A_is_done=false
+    part_B_is_done=false
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=not_committed
+
+-- State 1 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=not_committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=0
+    last_action=action_schedule_part_B
+    part_A_is_done=false
+    part_B_is_done=true
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=not_committed
+
+-- State 2 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=not_committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=0
+    last_action=action_schedule_part_A
+    part_A_is_done=true
+    part_B_is_done=true
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=not_committed
+
+-- State 3 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=not_committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=1
+    last_action=action_delay
+    part_A_is_done=false
+    part_B_is_done=false
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=not_committed
+
+-- State 4 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=not_committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=1
+    last_action=action_schedule_part_B
+    part_A_is_done=false
+    part_B_is_done=true
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=not_committed
+
+-- State 5 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=1
+    last_action=action_schedule_part_A
+    part_A_is_done=false
+    part_B_is_done=true
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=valid
+
+-- State 6 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=1
+    last_action=action_schedule_part_A
+    part_A_is_done=true
+    part_B_is_done=true
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=valid
+
+-- State 7 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=2
+    last_action=action_delay
+    part_A_is_done=false
+    part_B_is_done=false
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=valid
+
+-- State 8 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=2
+    last_action=action_schedule_part_B
+    part_A_is_done=false
+    part_B_is_done=true
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=valid
+
+-- State 9 --
+  Agent Environment
+    contract_funds=2
+    contract_initialized=false
+    part_A_total_deposits=0
+    part_B_total_deposits=0
+    public_secret_a=committed
+    public_secret_b=not_committed
+    status_node_0_withdraw=disabled
+    status_node_1_withdraw=disabled
+    status_node_2_split=disabled
+    status_node_3_reveal=disabled
+    status_node_4_withdraw=disabled
+    status_node_6_reveal=disabled
+    status_node_7_withdraw=disabled
+    time=2
+    last_action=action_schedule_part_A
+    part_A_is_done=true
+    part_B_is_done=true
+  Agent Agent_B
+    private_secret_b=not_committed
+  Agent Agent_A
+    private_secret_a=valid
+

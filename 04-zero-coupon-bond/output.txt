@@ -1,0 +1,34 @@
+************************************************************************
+                       MCMAS v1.3.0 
+
+ This software comes with ABSOLUTELY NO WARRANTY, to the extent
+ permitted by applicable law. 
+
+ Please check http://vas.doc.ic.ac.uk/tools/mcmas/ for the latest release.
+ Please send any feedback to <mcmas@imperial.ac.uk>
+************************************************************************
+
+Command line: ./tests/bin/mcmas -atlk 1 docs/04-zero-coupon-bond/contract.ispl
+
+docs/04-zero-coupon-bond/contract.ispl has been parsed successfully.
+Global syntax checking...
+1
+1
+1
+Done
+Encoding BDD parameters...
+Building partial transition relation...
+Building BDD for initial states...
+Building reachable state space...
+Checking formulae...
+Building set of fair states...
+Verifying properties...
+  Formula number 1: (<Agent_A>F contract_funds_are_zero), is TRUE in the model
+  Formula number 2: (<Agent_B>F contract_funds_are_zero), is TRUE in the model
+  Formula number 3: (<Agent_G>F contract_funds_are_zero), is TRUE in the model
+  Formula number 4: (<Agent_A__Agent_G>F part_A_total_deposits_is_10), is TRUE in the model
+  Formula number 5: (<Agent_B>F part_B_total_deposits_is_at_least_9), is TRUE in the model
+done, 5 formulae successfully read and checked
+execution time = 4.988
+number of reachable states = 1129
+BDD memory in use = 28123696

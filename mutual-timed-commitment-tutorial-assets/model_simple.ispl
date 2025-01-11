@@ -1,0 +1,86 @@
+Semantics=SingleAssignment;
+Agent Environment
+  Obsvars:
+    contract_funds: 0..1;
+    part_A_total_deposits: 0..1;
+    part_B_total_deposits: 0..1;
+    contract_initialized: boolean;
+    status_node_0_withdraw: {disabled, enabled, executed};
+  end Obsvars
+  Vars:
+    last_action: {action_schedule_part_A, action_schedule_part_B, unset};
+  end Vars
+
+  Actions = {schedule_part_A, schedule_part_B};
+  Protocol:
+    Other: {schedule_part_A, schedule_part_B};
+  end Protocol
+  Evolution:
+    contract_initialized = true if ((contract_initialized = false) and (((Action = schedule_part_A) and (Agent_A.Action = initialize_contract)) or ((Action = schedule_part_B) and (Agent_B.Action = initialize_contract))));
+    contract_funds = (contract_funds - 1) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_0_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_0_withdraw)));
+    part_B_total_deposits = (part_B_total_deposits + 1) if (((Action = schedule_part_A) and (Agent_A.Action = exec_node_0_withdraw)) or ((Action = schedule_part_B) and (Agent_B.Action = exec_node_0_withdraw)));
+    status_node_0_withdraw = executed if (((Agent_A.Action = exec_node_0_withdraw) and (Action = schedule_part_A)) or ((Agent_B.Action = exec_node_0_withdraw) and (Action = schedule_part_B)));
+    status_node_0_withdraw = enabled if (((((Action = schedule_part_A) and (Agent_A.Action = initialize_contract)) or ((Action = schedule_part_B) and (Agent_B.Action = initialize_contract))) or (contract_initialized = true)) and (status_node_0_withdraw = disabled));
+    last_action = action_schedule_part_A if (Action = schedule_part_A);
+    last_action = action_schedule_part_B if (Action = schedule_part_B);
+  end Evolution
+end Agent
+
+Agent Agent_A
+  Lobsvars = {};
+  Vars:
+    dummy: boolean;
+  end Vars
+
+  Actions = {exec_node_0_withdraw, initialize_contract, nop};
+  Protocol:
+    (Environment.contract_initialized = false): {initialize_contract, nop};
+    (Environment.status_node_0_withdraw = enabled): {exec_node_0_withdraw, nop};
+    Other: {nop};
+  end Protocol
+  Evolution:
+    dummy = false if (dummy = false);
+  end Evolution
+end Agent
+Agent Agent_B
+  Lobsvars = {};
+  Vars:
+    dummy: boolean;
+  end Vars
+
+  Actions = {exec_node_0_withdraw, initialize_contract, nop};
+  Protocol:
+    (Environment.contract_initialized = false): {initialize_contract, nop};
+    (Environment.status_node_0_withdraw = enabled): {exec_node_0_withdraw, nop};
+    Other: {nop};
+  end Protocol
+  Evolution:
+    dummy = false if (dummy = false);
+  end Evolution
+end Agent
+Evaluation
+  part_A_is_scheduled if (Environment.last_action = action_schedule_part_A);
+  part_B_is_scheduled if (Environment.last_action = action_schedule_part_B);
+  contract_is_initialized if (Environment.contract_initialized = true);
+  node_0_withdraw_is_disabled if (Environment.status_node_0_withdraw = disabled);
+  node_0_withdraw_is_enabled if (Environment.status_node_0_withdraw = enabled);
+  node_0_withdraw_is_executed if (Environment.status_node_0_withdraw = executed);
+  contract_funds_are_zero if (Environment.contract_funds = 0);
+end Evaluation
+InitStates
+  ((((((((Environment.contract_funds = 1) and (Environment.part_A_total_deposits = 0)) and (Environment.part_B_total_deposits = 0)) and (Environment.contract_initialized = false)) and (Environment.status_node_0_withdraw = disabled)) and (Environment.last_action = unset)) and (Agent_B.dummy = false)) and (Agent_A.dummy = false));
+end InitStates
+Groups
+  Participants = {Agent_A, Agent_B};
+  Env = {Environment};
+  ParticipantsAndEnv = {Agent_A, Agent_B, Environment};
+  Agent_B = {Agent_B};
+  Agent_A = {Agent_A};
+end Groups
+Fairness
+  part_A_is_scheduled;
+  part_B_is_scheduled;
+end Fairness
+Formulae
+  (EF contract_funds_are_zero);
+end Formulae
